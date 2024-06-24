@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { loginUser } from '@/lib/actions';
+import { checkIdCart, loginUser } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 
 const Login: React.FC = () => {
@@ -15,6 +15,7 @@ const Login: React.FC = () => {
     try {
       // Call loginUser function
       await loginUser(username, password);
+      await checkIdCart(username)
 
       // Handle successful login logic here (e.g., redirect)
       router.push('/');
