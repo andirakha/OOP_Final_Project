@@ -2,7 +2,6 @@
 
 import { prisma } from './prisma';
 import { getCarts, getUserIdByUsername, getUsers } from './data';
-import bcrypt from 'bcryptjs';
 
 export const handleSignUp = async (
   username: string,
@@ -15,13 +14,11 @@ export const handleSignUp = async (
       throw new Error('Passwords do not match');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = await prisma.user.create({
       data: {
         username,
         email,
-        password: hashedPassword,
+        password: password,
       },
     });
 
