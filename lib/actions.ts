@@ -1,7 +1,8 @@
-'use server'
+'use server';
 
 import { prisma } from './prisma';
 import { getCarts, getUserIdByUsername, getUsers } from './data';
+import bcrypt from 'bcryptjs';
 
 export const handleSignUp = async (
   username: string,
@@ -10,81 +11,66 @@ export const handleSignUp = async (
   retypePassword: string
 ) => {
   try {
-    // Pengecekan apakah password dan retypePassword sama
     if (password !== retypePassword) {
       throw new Error('Passwords do not match');
     }
 
-    // Create user in database
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await prisma.user.create({
       data: {
-        username: username,
-        email: email,
-        password: password, // Pastikan untuk menghash password di aplikasi yang sebenarnya
+        username,
+        email,
+        password: hashedPassword,
       },
     });
 
     console.log('User created:', newUser);
-    // Redirect to another page after successful signup
     return true;
   } catch (error) {
     console.error('Error creating user:', error);
-    if (error) {
-      throw new Error(`${error}`); // Beritahu pengguna untuk memeriksa konsol
-    } else {
-      throw new Error('Error creating user. Check console for detail.'); // Beritahu pengguna untuk memeriksa konsol
-    }
-  } finally {
-    await prisma.$disconnect();
+    throw new Error('Error creating user. Please try again.');
   }
 };
 
+export const loginUser = async (username: string, password: string) => {
+  try {
+    const users = await getUsers();
+    const user = users.find(user => user.username === username);
 
-export const loginUser = async (
-    username: string, 
-    password: string
-) => {
-    try {
-        const users = await getUsers(); // Mendapatkan semua user dari database
-
-        // Cari user dengan username yang cocok
-        const user = users.find(user => user.username === username);
-
-        // Jika user tidak ditemukan
-        if (!user) {
-            throw new Error('User not found');
-        }
-
-        // Verifikasi password
-        if (user.password !== password) {
-            throw new Error('Incorrect password');
-        }
-
-        // Jika user dan password cocok, kembalikan objek user
-        return user;
-
-    } catch (error) {
-        throw new Error(`Failed to login: ${error}`);
+    if (!user) {
+      throw new Error('User not found');
     }
-}
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      throw new Error('Incorrect password');
+    }
+
+    return user;
+  } catch (error) {
+    console.error('Failed to login:', error);
+    throw error; // Re-throw the specific error caught for clarity
+  }
+};
 
 export const checkIdCart = async (username: string) => {
-  const userId = await getUserIdByUsername(username);
   try {
-    // Mencari apakah ada record dengan userId yang diberikan di tabel cart
+    const userId = await getUserIdByUsername(username);
+
     const carts = await getCarts();
     const cart = carts.find(cart => cart.userId === userId);
 
-    // Jika cart ditemukan, berarti userId sudah ada di tabel cart
     if (!cart) {
-      const newUser = await prisma.cart.create({
+      const newCart = await prisma.cart.create({
         data: {
-          userId: userId
+          userId,
         },
       });
-      console.log('User created:', newUser);
+      console.log('Cart created for user:', newCart);
     }
   } catch (error) {
-    throw new Error("Failed to check userId in cart");
+    console.error('Failed to check userId in cart:', error);
+    throw new Error('Failed to check userId in cart. Please try again.');
   }
-}
+};
