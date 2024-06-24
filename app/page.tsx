@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-const Home: React.FC = async () => {
+const Home: React.FC = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '1rem' }}>
     <h1>Welcome to My Next.js App</h1>

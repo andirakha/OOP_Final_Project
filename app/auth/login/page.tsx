@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { loginUser } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null); // State to hold error message
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,6 +17,7 @@ const Login: React.FC = () => {
       await loginUser(username, password);
 
       // Handle successful login logic here (e.g., redirect)
+      router.push('/');
     } catch (error: any) {
       setError(error.message || 'Failed to login. Please try again.'); // Set error state
       console.error('Login error:', error);
