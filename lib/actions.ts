@@ -2,6 +2,7 @@
 
 import { prisma } from './prisma';
 import { getCarts, getUserIdByUsername, getUsers } from './data';
+import { createToken } from '@/lib/token';
 
 export const handleSignUp = async (
   username: string,
@@ -9,9 +10,22 @@ export const handleSignUp = async (
   password: string,
   retypePassword: string
 ) => {
+
   try {
+    const users = await getUsers();
+    const usercheck = users.find(usercheck => usercheck.username === username);
+    const emailcheck = users.find(emailcheck => emailcheck.email === email);
+
     if (password !== retypePassword) {
       throw new Error('Passwords do not match');
+    }
+
+    if (usercheck) {
+      throw new Error('Username already used');
+    }
+  
+    if (emailcheck) {
+      throw new Error('Email already used');
     }
 
     const newUser = await prisma.user.create({
@@ -26,7 +40,7 @@ export const handleSignUp = async (
     return true;
   } catch (error) {
     console.error('Error creating user:', error);
-    throw new Error('Error creating user. Please try again.');
+    throw error;
   }
 };
 
@@ -42,8 +56,8 @@ export const loginUser = async (username: string, password: string) => {
     if (password != user.password) {
       throw new Error('Incorrect password ');
     }
-
-    return user;
+    
+    return { user };
   } catch (error) {
     console.error('Failed to login:', error);
     throw error; // Re-throw the specific error caught for clarity

@@ -1,8 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { handleSignUp } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+import CryptoJS from 'crypto-js';
+
+const decryptData = (encryptedData: string): any => {
+  const bytes = CryptoJS.AES.decrypt(encryptedData, 'secret_key');
+  const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  return decryptedData;
+};
 
 const Signup: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -17,13 +25,30 @@ const Signup: React.FC = () => {
     try {
       await handleSignUp(username, email, password, retypePassword);
       setIsSuccess(true); // Set success state to true
-      router.push('/');
+      router.push('/dashboard');
     } catch (error) {
       alert(error);
       console.error('Error submitting form:', error);
       // Handle error state or display error message
     }
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userCookie = Cookies.get('user');
+        if (userCookie) {
+          const decryptedUser = decryptData(userCookie);
+          // Jika user ada, langsung arahkan ke halaman Dashboard
+          router.push('/dashboard');
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        // Handle error, misalnya dengan menampilkan pesan kesalahan atau melakukan tindakan lainnya
+      }
+    };
+    fetchUser();
+  }, []);
   
   return (
     <div style={{ maxWidth: '400px', margin: '0 auto', padding: '1rem' }}>
