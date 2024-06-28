@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from './prisma';
-import { getCarts, getUserIdByUsername, getUsers } from './data';
+import { getCarts, getUserIdByUsername, getUsers, getProducts } from './data';
 import { createToken } from '@/lib/token';
 
 export const handleSignUp = async (
@@ -41,6 +41,15 @@ export const handleSignUp = async (
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;
+  }
+};
+
+export const fetchProducts = async () => {
+  try {
+    const fetchedProducts = await getProducts();
+    return fetchedProducts;
+  } catch (error) {
+    console.error('Error fetching products:', error);
   }
 };
 

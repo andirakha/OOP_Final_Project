@@ -24,6 +24,8 @@ const Home: React.FC = () => {
           const decryptedUser = decryptData(userCookie);
           // Jika user ada, langsung arahkan ke halaman Dashboard
           router.push('/dashboard');
+        } else {
+          router.push('/auth/login');
         }
       } catch (error) {
         console.error('Error fetching user:', error);

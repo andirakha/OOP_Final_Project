@@ -44,4 +44,8 @@ export const getUserIdByUsername = async (username: string) => {
     }
 }
 
+export const getUserData = async () => {
+    
+}
+
 
