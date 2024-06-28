@@ -9,6 +9,15 @@ export const getProducts = async () => {
     }
 }
 
+export const getCartItems = async () => {
+    try {
+        const cartItems = await prisma.cartItem.findMany();
+        return cartItems;
+    } catch (error) {
+        throw new Error("Failed to fetch cart items data");
+    }
+}
+
 export const getUsers = async () => {
     try {
         const users = await prisma.user.findMany();
@@ -44,8 +53,35 @@ export const getUserIdByUsername = async (username: string) => {
     }
 }
 
-export const getUserData = async () => {
-    
-}
+export const getCartIdByUserId = async (userId: number) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          carts: true, // Termasuk informasi keranjang dari pengguna
+        },
+      });
+  
+      if (!user) {
+        throw new Error('User not found');
+      }
+  
+      // Misalnya, kita mengambil cartId dari keranjang pertama pengguna
+      const cartId = user.carts[0]?.id; // Mengambil id dari keranjang pertama
+  
+      if (!cartId) {
+        throw new Error('Cart not found for the user');
+      }
+  
+      return cartId;
+    } catch (error) {
+      console.error('Error fetching cartId:', error);
+      throw new Error('Failed to fetch cartId');
+    }
+  };
+
+
 
 

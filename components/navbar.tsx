@@ -35,6 +35,26 @@ const Navbar: React.FC = () => {
           <div className="text-white font-bold ml-4">
             Welcome
           </div>
+          <Link href="/cart" className="text-white font-bold">
+           Cart
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="text-white font-bold ml-4 cursor-pointer bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 transition duration-300"
+          >
+            Logout
+          </button>
+        </>
+      );
+    } else if (pathname === '/cart') {
+      return (
+        <>
+          <div className="text-white font-bold ml-4">
+            Welcome
+          </div>
+          <Link href="/dashboard" className="text-white font-bold">
+           Dashboard
+          </Link>
           <button
             onClick={handleLogout}
             className="text-white font-bold ml-4 cursor-pointer bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 transition duration-300"
